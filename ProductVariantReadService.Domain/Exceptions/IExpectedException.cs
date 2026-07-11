@@ -1,0 +1,3 @@
+﻿namespace ProductVariantReadService.Domain.Exceptions;
+
+public interface IExpectedException;

@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>5ae7f32c-af96-4e9c-8d0e-23ae6cd638bc</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+	<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+	<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+	<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+	<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+	<PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductVariantReadService.Application\ProductVariantReadService.Application.csproj" />
+    <ProjectReference Include="..\ProductVariantReadService.Infrastructure\ProductVariantReadService.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+  	<Protobuf Include="Grpc\V1\Protos\ProductVariantReadService.proto" GrpcServices="Server" />
+  </ItemGroup>
+		
+  <ItemGroup>
+    <Reference Include="migApp.Shared">
+      <HintPath>..\..\migApp.Shared\bin\Debug\net10.0\migApp.Shared.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

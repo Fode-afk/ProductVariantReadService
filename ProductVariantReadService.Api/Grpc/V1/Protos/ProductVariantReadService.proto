@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package product.variant.read.v1;
+
+option csharp_namespace = "ProductVariantReadService.Api.Grpc.V1.Protos";
+
+service ProductVariantReadService {
+	rpc GetVariantsByProductId(GetVariantsByProductIdRequest) returns (GetVariantsByProductIdResponse);
+}
+
+message VariantPublicDto {
+	string variant_id = 1;
+	string product_id = 2;
+	PriceInfoDto price = 3;
+	StockInfoDto stock = 4;
+	ReviewSummaryDto review_summary = 5;
+	repeated ProductVariantAttributeDto attributes = 6;
+	repeated VariantImageDto images = 7;
+}
+
+message PriceInfoDto {
+	int64 amount_minor = 1;
+	optional int64 old_amount_minor = 2;
+}
+
+message StockInfoDto {
+	bool in_stock = 1;
+}
+
+message ReviewSummaryDto {
+	double average_rating = 1;
+	int32 total_count = 2;
+}
+
+message ProductVariantAttributeDto {
+	string characteristic_id = 1;
+	string name = 2;
+	string value = 3;
+	string char_type = 4;
+	optional string group_name = 5;
+}
+
+message VariantImageDto {
+	string url = 1;
+	string alt = 2;
+	int32 sort_order = 3;
+	bool is_main = 4;
+}
+
+message GetVariantsByProductIdRequest {
+	string product_id = 1;
+	string currency_code = 2;
+}
+
+message GetVariantsByProductIdResponse {
+	repeated VariantPublicDto variants = 1;
+}

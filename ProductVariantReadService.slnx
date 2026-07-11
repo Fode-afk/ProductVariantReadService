@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ProductVariantReadService.Api/ProductVariantReadService.Api.csproj" />
+  <Project Path="ProductVariantReadService.Application/ProductVariantReadService.Application.csproj" />
+  <Project Path="ProductVariantReadService.Domain/ProductVariantReadService.Domain.csproj" />
+  <Project Path="ProductVariantReadService.Infrastructure/ProductVariantReadService.Infrastructure.csproj" />
+</Solution>
