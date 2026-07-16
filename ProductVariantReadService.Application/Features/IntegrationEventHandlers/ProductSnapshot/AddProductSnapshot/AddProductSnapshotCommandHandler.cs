@@ -12,6 +12,7 @@ public sealed class AddProductSnapshotCommandHandler(
         var productSnapshot = new Domain.Snapshots.ProductSnapshot
         {
             ProductId = request.ProductId,
+            VendorId = request.VendorId,
             IsVisiblePublicly = request.IsVisiblePublicly,
             Version = request.Version,
             UpdatedAt = timeProvider.GetUtcNow()

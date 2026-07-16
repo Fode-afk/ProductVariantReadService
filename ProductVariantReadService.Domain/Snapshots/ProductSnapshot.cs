@@ -8,6 +8,8 @@ public sealed class ProductSnapshot
     [BsonId]
     [BsonRepresentation(BsonType.String)]
     public Guid ProductId { get; set; }
+    [BsonRepresentation(BsonType.String)]
+    public Guid VendorId { get; set; }
 
     public bool IsVisiblePublicly { get; set; }
 

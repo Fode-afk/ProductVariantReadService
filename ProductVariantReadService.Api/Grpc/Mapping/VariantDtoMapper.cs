@@ -1,4 +1,5 @@
-﻿using ProductVariantReadService.Api.Grpc.V1.Protos;
+﻿using Google.Protobuf.WellKnownTypes;
+using ProductVariantReadService.Api.Grpc.V1.Protos;
 using ProductVariantReadService.Application.Dtos;
 using Proto = ProductVariantReadService.Api.Grpc.V1.Protos;
 
@@ -8,10 +9,11 @@ internal static class VariantDtoMapper
 {
     public static VariantPublicDto ToGrpc(this ProductVariantPublicDto dto)
     {
-        var proto = new VariantPublicDto
+        var result = new VariantPublicDto
         {
             VariantId = dto.VariantId.ToString(),
             ProductId = dto.ProductId.ToString(),
+            VendorId = dto.VendorId.ToString(),
             Price = dto.Price?.ToGrpc(),
             Stock = dto.Stock?.ToGrpc(),
             ReviewSummary = dto.ReviewSummary?.ToGrpc(),
@@ -19,7 +21,32 @@ internal static class VariantDtoMapper
             Images = { dto.Images.Select(i => i.ToGrpc()) }
         };
 
-        return proto;
+        return result;
+    }
+
+    public static VariantOwnerDto ToGrpc(this ProductVariantOwnerDto dto)
+    {
+        var result = new VariantOwnerDto
+        {
+            VariantId = dto.VariantId.ToString(),
+            ProductId = dto.ProductId.ToString(),
+            VendorId = dto.VendorId.ToString(),
+            Sku = dto.Sku,
+            Dimensions = dto.Dimensions.ToGrpc(),
+            Weight = dto.Weight.ToGrpc(),
+            Barcode = dto.Barcode,
+            Price = dto.Price?.ToGrpc(),
+            Stock = dto.Stock?.ToGrpc(),
+            ReviewSummary = dto.ReviewSummary?.ToGrpc(),
+            Attributes = { dto.Attributes.Select(a => a.ToGrpc()) },
+            Images = { dto.Images.Select(i => i.ToGrpc()) },
+            CreatedAt = Timestamp.FromDateTimeOffset(dto.CreatedAt),
+        };
+
+        if (dto.UpdatedAt.HasValue)
+            result.UpdatedAt = Timestamp.FromDateTimeOffset(dto.UpdatedAt.Value);
+
+        return result;
     }
 
     private static Proto.PriceInfoDto ToGrpc(this Application.Dtos.PriceInfoDto price)
@@ -37,6 +64,22 @@ internal static class VariantDtoMapper
 
     private static Proto.StockInfoDto ToGrpc(this Application.Dtos.StockInfoDto stock) =>
         new() { InStock = stock.InStock };
+
+    private static Proto.DimensionsInfoDto ToGrpc(this Application.Dtos.DimensionsInfoDto dimensions) =>
+        new()
+        {
+            Length = dimensions.Length,
+            Width = dimensions.Width,
+            Height = dimensions.Height,
+            Unit = dimensions.Unit,
+        };
+
+    private static Proto.WeightInfoDto ToGrpc(this Application.Dtos.WeightInfoDto weight) =>
+        new()
+        {
+            Weight = weight.Weight,
+            Unit = weight.Unit,
+        };
 
     private static Proto.ReviewSummaryDto ToGrpc(this Application.Dtos.ReviewSummaryDto summary) =>
         new()

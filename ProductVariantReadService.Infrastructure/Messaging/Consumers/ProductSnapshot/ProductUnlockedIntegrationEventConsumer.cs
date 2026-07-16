@@ -10,6 +10,7 @@ public sealed class ProductUnlockedIntegrationEventConsumer(IMediator mediator) 
     public async Task Consume(ConsumeContext<ProductUnlockedIntegrationEvent> context) =>
         await mediator.Send(new UpdateProductSnapshotCommand(
             context.Message.ProductId,
+            context.Message.VendorId,
             context.Message.IsVisiblePublicly,
             context.Message.Version), context.CancellationToken);
 }

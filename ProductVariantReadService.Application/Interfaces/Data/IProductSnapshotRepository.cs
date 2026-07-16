@@ -10,6 +10,7 @@ public interface IProductSnapshotRepository
 
     Task<bool> TryUpdateAsync(
         Guid productId,
+        Guid vendorId,
         bool isVisiblePublicly,
         long version,
         DateTimeOffset now,

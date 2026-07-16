@@ -4,5 +4,6 @@ namespace ProductVariantReadService.Application.Features.IntegrationEventHandler
 
 public sealed record AddProductSnapshotCommand(
     Guid ProductId,
+    Guid VendorId,
     bool IsVisiblePublicly,
     long Version) : IRequest;

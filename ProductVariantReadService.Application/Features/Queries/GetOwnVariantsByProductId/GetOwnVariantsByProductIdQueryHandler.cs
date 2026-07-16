@@ -12,47 +12,41 @@ using ProductVariantReadService.Domain.Models;
 using ZiggyCreatures.Caching.Fusion;
 using static migApp.Shared.Results.ResultFactory;
 
-namespace ProductVariantReadService.Application.Features.Queries.GetVariantsByProductId;
+namespace ProductVariantReadService.Application.Features.Queries.GetOwnVariantsByProductId;
 
-public sealed class GetVariantsByProductIdQueryHandler(
+public sealed class GetOwnVariantsByProductIdQueryHandler(
     IProductVariantReadRepository productReadRepository,
-    IMoneyConverter moneyConverter,
+    IFusionCache cache,
     IProductVariantReadMetrics metrics,
-    IFusionCache cache) : IRequestHandler<GetVariantsByProductIdQuery, IResult<IEnumerable<ProductVariantPublicDto>>>
+    IMoneyConverter moneyConverter) : IRequestHandler<GetOwnVariantsByProductIdQuery, IResult<IEnumerable<ProductVariantOwnerDto>>>
 {
-    public async Task<IResult<IEnumerable<ProductVariantPublicDto>>> Handle(GetVariantsByProductIdQuery request, CancellationToken cancellationToken)
+    public async Task<IResult<IEnumerable<ProductVariantOwnerDto>>> Handle(GetOwnVariantsByProductIdQuery request, CancellationToken cancellationToken)
     {
         var currencyResult = Currency.Create(request.Currency);
         if (currencyResult.IsFailure)
-            return Fail<IEnumerable<ProductVariantPublicDto>>(currencyResult.Error);
+            return Fail<IEnumerable<ProductVariantOwnerDto>>(currencyResult.Error);
 
         var currency = currencyResult.Value;
-
         var wasHit = true;
 
-        var variantDtos = await cache.GetOrSetAsync<IEnumerable<ProductVariantPublicDto>?>(
-            CacheKeys.PublicVariantsByProductId(request.ProductId, currency.Code),
+        var variantDtos = await cache.GetOrSetAsync<IEnumerable<ProductVariantOwnerDto>?>(
+            CacheKeys.OwnVariantsByProductId(request.ProductId, currency.Code),
             async (entry, ct) =>
             {
                 wasHit = false;
 
                 var variants = await productReadRepository.GetByProductIdAsync(request.ProductId, ct);
 
-                var visibleVariants = variants?
-                    .Where(v => v.Product.IsVisiblePublicly)
-                    .ToList() ?? [];
-
-                if (visibleVariants.Count == 0)
-                {
-                    metrics.RecordProductVariantHiddenByVisibilityPolicy("Some variants are hidden by visibility policy");
+                if (variants is null || !variants.Any())
                     return null;
-                }
 
-                var dtos = new List<ProductVariantPublicDto>(visibleVariants.Count);
+                entry.Tags = [CacheTags.VariantsByProductId(request.ProductId)];
 
-                foreach (var variant in visibleVariants)
+                var dtos = new List<ProductVariantOwnerDto>();
+
+                foreach (var variant in variants)
                 {
-                    var dtoResult = await ToConvertedPublicDtoAsync(variant, currency, ct);
+                    var dtoResult = await ToConvertedOwnerDtoAsync(variant, currency, ct);
 
                     if (dtoResult.IsFailure)
                         return null;
@@ -62,17 +56,20 @@ public sealed class GetVariantsByProductIdQueryHandler(
 
                 return dtos;
             },
-            tags: [CacheTags.VariantsByProductId(request.ProductId)],
             token: cancellationToken);
 
-        metrics.RecordCacheHitOrMiss("product-variant-by-product-id", wasHit);
+        metrics.RecordCacheHitOrMiss("own-product-variant-by-product-id", wasHit);
 
-        return variantDtos != null && variantDtos.Any() ?
-            Ok(variantDtos) :
-            Fail<IEnumerable<ProductVariantPublicDto>>(ProductVariantErrors.NotFound());
+        if (variantDtos is null || !variantDtos.Any())
+            return Fail<IEnumerable<ProductVariantOwnerDto>>(ProductVariantErrors.NotFound());
+
+        if (!variantDtos.All(v => v.VendorId == request.VendorId))
+            return Fail<IEnumerable<ProductVariantOwnerDto>>(ProductVariantErrors.NotFound());
+
+        return Ok(variantDtos);
     }
 
-    private async Task<IResult<ProductVariantPublicDto>> ToConvertedPublicDtoAsync(
+    private async Task<IResult<ProductVariantOwnerDto>> ToConvertedOwnerDtoAsync(
         ProductVariantDocument document,
         Currency targetCurrency,
         CancellationToken cancellationToken)
@@ -85,7 +82,7 @@ public sealed class GetVariantsByProductIdQueryHandler(
                 document.Price.AmountMinor, targetCurrency, cancellationToken);
 
             if (amountResult.IsFailure)
-                return Fail<ProductVariantPublicDto>(amountResult.Error);
+                return Fail<ProductVariantOwnerDto>(amountResult.Error);
 
             long? oldAmountMinor = null;
 
@@ -95,7 +92,7 @@ public sealed class GetVariantsByProductIdQueryHandler(
                     document.Price.OldAmountMinor.Value, targetCurrency, cancellationToken);
 
                 if (oldAmountResult.IsFailure)
-                    return Fail<ProductVariantPublicDto>(oldAmountResult.Error);
+                    return Fail<ProductVariantOwnerDto>(oldAmountResult.Error);
 
                 oldAmountMinor = oldAmountResult.Value;
             }
@@ -103,7 +100,7 @@ public sealed class GetVariantsByProductIdQueryHandler(
             priceDto = new PriceInfoDto(amountResult.Value, oldAmountMinor);
         }
 
-        return Ok(document.ToPublicDto() with { Price = priceDto });
+        return Ok(document.ToOwnerDto() with { Price = priceDto });
     }
 
     private async Task<IResult<long>> ConvertUsdToTargetMinorAsync(

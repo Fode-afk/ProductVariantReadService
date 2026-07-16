@@ -21,6 +21,7 @@ public sealed class UpdateProductSnapshotCommandHandler(
 
         var applied = await productSnapshotRepository.TryUpdateAsync(
             request.ProductId,
+            request.VendorId,
             request.IsVisiblePublicly,
             request.Version,
             now,
@@ -43,6 +44,7 @@ public sealed class UpdateProductSnapshotCommandHandler(
         var productInfo = new ProductInfo
         {
             ProductId = request.ProductId,
+            VendorId = request.VendorId,
             IsVisiblePublicly = request.IsVisiblePublicly,
             UpdatedAt = now,
         };

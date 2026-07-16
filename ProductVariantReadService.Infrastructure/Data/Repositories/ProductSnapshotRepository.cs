@@ -18,6 +18,7 @@ internal sealed class ProductSnapshotRepository(IMongoDatabase database) : IProd
 
     public async Task<bool> TryUpdateAsync(
         Guid productId,
+        Guid vendorId,
         bool isVisiblePublicly,
         long version,
         DateTimeOffset now,
@@ -26,6 +27,7 @@ internal sealed class ProductSnapshotRepository(IMongoDatabase database) : IProd
         var result = await _collection.UpdateOneAsync(
             s => s.ProductId == productId && s.Version < version,
             Builders<ProductSnapshot>.Update
+                .Set(s => s.VendorId, vendorId)
                 .Set(s => s.IsVisiblePublicly, isVisiblePublicly)
                 .Set(s => s.Version, version)
                 .Set(s => s.UpdatedAt, now),

@@ -8,16 +8,35 @@ option csharp_namespace = "ProductVariantReadService.Api.Grpc.V1.Protos";
 
 service ProductVariantReadService {
 	rpc GetVariantsByProductId(GetVariantsByProductIdRequest) returns (GetVariantsByProductIdResponse);
+	rpc GetOwnVariantsByProductId(GetOwnVariantsByProductIdRequest) returns (GetOwnVariantsByProductIdResponse);
 }
 
 message VariantPublicDto {
 	string variant_id = 1;
 	string product_id = 2;
-	PriceInfoDto price = 3;
-	StockInfoDto stock = 4;
-	ReviewSummaryDto review_summary = 5;
-	repeated ProductVariantAttributeDto attributes = 6;
-	repeated VariantImageDto images = 7;
+	string vendor_id = 3;
+	PriceInfoDto price = 4;
+	StockInfoDto stock = 5;
+	ReviewSummaryDto review_summary = 6;
+	repeated ProductVariantAttributeDto attributes = 7;
+	repeated VariantImageDto images = 8;
+}
+
+message VariantOwnerDto {
+	string variant_id = 1;
+	string product_id = 2;
+	string vendor_id = 3;
+	string sku = 4;
+    DimensionsInfoDto dimensions = 5;
+    WeightInfoDto weight = 6;
+    string barcode = 7;
+	PriceInfoDto price = 8;
+	StockInfoDto stock = 9;
+	ReviewSummaryDto review_summary = 10;
+	repeated ProductVariantAttributeDto attributes = 11;
+	repeated VariantImageDto images = 12;
+	google.protobuf.Timestamp created_at = 13;
+    google.protobuf.Timestamp updated_at = 14;
 }
 
 message PriceInfoDto {
@@ -27,6 +46,18 @@ message PriceInfoDto {
 
 message StockInfoDto {
 	bool in_stock = 1;
+}
+
+message DimensionsInfoDto {
+	double length = 1;
+	double width = 2;
+	double height = 3;
+	string unit = 4;
+}
+
+message WeightInfoDto {
+	double weight = 1;
+	string unit = 2;
 }
 
 message ReviewSummaryDto {
@@ -56,4 +87,14 @@ message GetVariantsByProductIdRequest {
 
 message GetVariantsByProductIdResponse {
 	repeated VariantPublicDto variants = 1;
+}
+
+message GetOwnVariantsByProductIdRequest {
+	string product_id = 1;
+	string vendor_id = 2;
+	string currency_code = 3;
+}
+
+message GetOwnVariantsByProductIdResponse {
+	repeated VariantOwnerDto variants = 1;
 }
