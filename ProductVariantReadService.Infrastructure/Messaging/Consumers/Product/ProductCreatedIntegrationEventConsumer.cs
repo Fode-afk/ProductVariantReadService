@@ -3,7 +3,7 @@ using MediatR;
 using migApp.Shared.Messaging.IntegrationEvents.Products;
 using ProductVariantReadService.Application.Features.IntegrationEventHandlers.ProductSnapshot.AddProductSnapshot;
 
-namespace ProductVariantReadService.Infrastructure.Messaging.Consumers.ProductSnapshot;
+namespace ProductVariantReadService.Infrastructure.Messaging.Consumers.Product;
 
 public sealed class ProductCreatedIntegrationEventConsumer(IMediator mediator) : IConsumer<ProductCreatedIntegrationEvent>
 {

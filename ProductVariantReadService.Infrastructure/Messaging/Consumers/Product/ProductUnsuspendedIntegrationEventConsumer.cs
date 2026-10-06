@@ -3,11 +3,11 @@ using MediatR;
 using migApp.Shared.Messaging.IntegrationEvents.Products;
 using ProductVariantReadService.Application.Features.IntegrationEventHandlers.ProductSnapshot.UpdateProductSnapshot;
 
-namespace ProductVariantReadService.Infrastructure.Messaging.Consumers.ProductSnapshot;
+namespace ProductVariantReadService.Infrastructure.Messaging.Consumers.Product;
 
-public sealed class ProductUnpublishedIntegrationEventConsumer(IMediator mediator) : IConsumer<ProductUnpublishedIntegrationEvent>
+public sealed class ProductUnsuspendedIntegrationEventConsumer(IMediator mediator) : IConsumer<ProductUnsuspendedIntegrationEvent>
 {
-    public async Task Consume(ConsumeContext<ProductUnpublishedIntegrationEvent> context) =>
+    public async Task Consume(ConsumeContext<ProductUnsuspendedIntegrationEvent> context) =>
         await mediator.Send(new UpdateProductSnapshotCommand(
             context.Message.ProductId,
             context.Message.VendorId,
